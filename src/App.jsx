@@ -7,23 +7,46 @@ function App() {
   const [weatherData, setWeatherData] = useState(null)
   const [location, setLocation] = useState('')
 
-
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`http://api.weatherapi.com/v1/forecast.json?key=${import.meta.env.VITE_WEATHER_API}&q=London&days=4&aqi=yes&alerts=yes`)
-        console.log(response.data)
+        const response = await axios.get(`http://api.weatherapi.com/v1/forecast.json?key=${import.meta.env.VITE_WEATHER_API}&q=${location}&days=4&aqi=yes&alerts=yes`)
+        setWeatherData(response.data)
       } catch (err) {
         console.error(err)
       }
     }
-    fetchData();
-  }, []);
+    if (location) {
+      fetchData();
+    }
+  }, [location]);
 
+  const handleLocationChange = () => (e) => {
+    setLocation(e.target.value)
+    console.log(e.target.value)
+  }
+  console.log('weatherData', weatherData)
   return (
     <>
-      hhh
-
+      <div>
+        <h1>Weather App</h1>
+        <input
+          type="text"
+          value={location}
+          // onChange={(e) => setLocation(e.target.value)}
+          onChange={handleLocationChange()}
+        />
+      </div>
+      <div>
+        {weatherData && (
+          <>
+            <h2>{weatherData.location.name}</h2>
+            <h3>{weatherData.current.temp_c}°C</h3>
+            <img src={weatherData.current.condition.icon} alt={weatherData.current.condition.text} />
+            <p>{weatherData.current.condition.text}</p>
+          </>
+        )}
+      </div>
     </>
   )
 }
