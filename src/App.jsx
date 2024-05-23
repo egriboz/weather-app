@@ -48,17 +48,17 @@ function App() {
     setLocation(e.target.value)
     // console.log(e.target.value)
   }
-  // console.log('weatherData', weatherData)
+  //console.log('weatherData', weatherData)
   return (
     <>
       {weatherData && (
-        <header className='flex p-10 bg-blue-50'>
+        <header className='flex p-10 lg:w-3/4 m-auto rounded-b-lg bg-blue-50'>
           <div className='flex-1'>
             <h1 className='text-3xl font-bold'>{weatherData.location.name}</h1>
           </div>
           <div className='flex-2'>
             <input
-              className="p-4 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+              className="p-4 block w-full rounded-md border-0 py-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
 
               type="text"
               value={location}
@@ -72,9 +72,14 @@ function App() {
         <section className='flex flex-col m-20'>
 
           <div className='w-auto m-auto text-center'>
-            <h3 className='flex'><span className='text-8xl font-bold'>{weatherData.current.temp_c}</span><span className='text-xl'>°C</span></h3>
+            <h3 className='flex justify-center'><span className='text-8xl font-normal'>{weatherData.current.temp_c}</span><span className='text-xl'>°C</span></h3>
             <img className='m-auto' src={weatherData.current.condition.icon} alt={weatherData.current.condition.text} />
             <p>{weatherData.current.condition.text}</p>
+            <div className='border px-10 py-5 mt-6 rounded-md'>
+              <p>Feels like: {weatherData.current.feelslike_c}°C</p>
+              <p>Humidity: {weatherData.current.humidity}°C</p>
+              <p>Wind: {weatherData.current.wind_degree} km/h</p>
+            </div>
           </div>
 
         </section >
@@ -86,21 +91,20 @@ function App() {
           <h3>Weekly</h3>
         </div>
       )}
-      <div className='grid grid-cols-weekly gap-2'>
+      <div className='grid lg:grid-cols-weekly gap-2 mx-2'>
         {weatherData && weatherData.forecast.forecastday.map((day) => {
           // Tarihi al
           const date = new Date(day.date);
           // Tarihi haftanın gün ismine dönüştür
           const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
           return (
-            <div className='bg-blue-50 flex flex-col items-center gap-2 p-8' key={day.date}>
+            <div className='bg-blue-50 flex flex-col items-center gap-2 p-8 rounded-md' key={day.date}>
               {/* Gün ismini ekle */}
               <h3>{dayName}</h3>
               {/* Geri kalan hava raporu bilgileri */}
               <img className='m-auto' src={day.day.condition.icon} alt={day.day.condition.text} />
               <p>{day.day.condition.text}</p>
-              <p>{day.day.maxtemp_c}°C</p>
-              <p>{day.day.mintemp_c}°C</p>
+              <p>{day.day.maxtemp_c}°C - {day.day.mintemp_c}°C</p>
             </div>
           );
         })}
