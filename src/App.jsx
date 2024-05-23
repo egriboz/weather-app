@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 
-import './App.css'
 
 function App() {
   const [weatherData, setWeatherData] = useState(null)
@@ -10,15 +9,22 @@ function App() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`http://api.weatherapi.com/v1/forecast.json?key=${import.meta.env.VITE_WEATHER_API}&q=${location}&days=4&aqi=yes&alerts=yes`)
+        const response = await axios.get(`http://api.weatherapi.com/v1/forecast.json?key=${import.meta.env.VITE_WEATHER_API}&q=${location}&days=7&aqi=yes&alerts=yes`)
         setWeatherData(response.data)
+        console.log("response", response)
       } catch (err) {
         console.error(err)
+        console.log("error code", err.request.response.message)
       }
     }
-    if (location) {
-      fetchData();
-    }
+    const timeout = setTimeout(() => {
+      if (location) {
+        fetchData();
+      }
+    }, 900);
+    return () => {
+      clearTimeout(timeout);
+    };
   }, [location]);
 
   const handleLocationChange = () => (e) => {
@@ -28,34 +34,46 @@ function App() {
   // console.log('weatherData', weatherData)
   return (
     <>
-      <div>
-        <h1>Weather App</h1>
-        <div className='input-container'>
-          <input
-            type="text"
-            value={location}
-            // onChange={(e) => setLocation(e.target.value)}
-            onChange={handleLocationChange()}
-          />
-        </div>
-      </div>
-      {/* <div>
-        {weatherData && (
-          <div>
-            <h2>{weatherData.location.name}</h2>
-            <h3>{weatherData.current.temp_c}°C</h3>
-            <img src={weatherData.current.condition.icon} alt={weatherData.current.condition.text} />
+      {weatherData && (
+        <header className='flex p-10 bg-blue-50'>
+          <div className='flex-1'>
+            <h1 className='text-3xl font-bold'>{weatherData.location.name}</h1>
+          </div>
+          <div className='flex-2'>
+            <input
+              className="p-4 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+
+              type="text"
+              value={location}
+              // onChange={(e) => setLocation(e.target.value)}
+              onChange={handleLocationChange()}
+            />
+          </div>
+        </header>
+      )}
+      {weatherData && (
+        <section className='flex flex-col'>
+
+          <div className='w-auto m-auto text-center'>
+            <h3 className='text-8xl'><span>{weatherData.current.temp_c}</span><sup className='text-xl'>°C</sup></h3>
+            <img className='m-auto' src={weatherData.current.condition.icon} alt={weatherData.current.condition.text} />
             <p>{weatherData.current.condition.text}</p>
           </div>
-        )}
-      </div> */}
-      <div><h2>{location}</h2></div>
-      <div className='grid-contanier'>
 
+        </section >
+
+      )
+      }
+      {weatherData && (
+        <div className='text-center text-2xl mt-20 mb-5'>
+          <h3>Weekly</h3>
+        </div>
+      )}
+      <div className='grid grid-cols-weekly gap-2'>
         {weatherData && weatherData.forecast.forecastday.map((day) => (
-          <div className='grid-contanier__inner' key={day.date}>
+          <div className='bg-blue-50 flex flex-col items-center gap-2 p-8' key={day.date}>
             <h3>{day.date}</h3>
-            <img src={day.day.condition.icon} alt={day.day.condition.text} />
+            <img className='m-auto' src={day.day.condition.icon} alt={day.day.condition.text} />
             <p>{day.day.condition.text}</p>
             <p>{day.day.maxtemp_c}°C</p>
             <p>{day.day.mintemp_c}°C</p>
