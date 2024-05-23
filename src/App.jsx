@@ -4,12 +4,29 @@ import axios from 'axios'
 
 function App() {
   const [weatherData, setWeatherData] = useState(null)
-  const [location, setLocation] = useState('İstanbul')
+  const [location, setLocation] = useState('')
+
+  useEffect(() => {
+    // Kullanıcının konumunu al ve varsayılan konumu güncelle
+    const getLocation = async () => {
+      try {
+        // const response = await axios.get('https://ipapi.co/8.8.8.8/json/');
+        const response = await axios.get('https://ipapi.co/json/');
+        setLocation(response.data.city || 'İstanbul');
+      } catch (error) {
+        console.error('Konum bulunamadı:', error);
+        setLocation('İstanbul'); // Varsayılan konum İstanbul olarak ayarlandı
+      }
+    };
+
+    getLocation();
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await axios.get(`http://api.weatherapi.com/v1/forecast.json?key=${import.meta.env.VITE_WEATHER_API}&q=${location}&days=7&aqi=yes&alerts=yes`)
+
         setWeatherData(response.data)
         console.log("response", response)
       } catch (err) {
@@ -52,10 +69,10 @@ function App() {
         </header>
       )}
       {weatherData && (
-        <section className='flex flex-col'>
+        <section className='flex flex-col m-20'>
 
           <div className='w-auto m-auto text-center'>
-            <h3 className='text-8xl'><span>{weatherData.current.temp_c}</span><sup className='text-xl'>°C</sup></h3>
+            <h3 className='flex'><span className='text-8xl font-bold'>{weatherData.current.temp_c}</span><span className='text-xl'>°C</span></h3>
             <img className='m-auto' src={weatherData.current.condition.icon} alt={weatherData.current.condition.text} />
             <p>{weatherData.current.condition.text}</p>
           </div>
@@ -70,15 +87,24 @@ function App() {
         </div>
       )}
       <div className='grid grid-cols-weekly gap-2'>
-        {weatherData && weatherData.forecast.forecastday.map((day) => (
-          <div className='bg-blue-50 flex flex-col items-center gap-2 p-8' key={day.date}>
-            <h3>{day.date}</h3>
-            <img className='m-auto' src={day.day.condition.icon} alt={day.day.condition.text} />
-            <p>{day.day.condition.text}</p>
-            <p>{day.day.maxtemp_c}°C</p>
-            <p>{day.day.mintemp_c}°C</p>
-          </div>
-        ))}
+        {weatherData && weatherData.forecast.forecastday.map((day) => {
+          // Tarihi al
+          const date = new Date(day.date);
+          // Tarihi haftanın gün ismine dönüştür
+          const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
+          return (
+            <div className='bg-blue-50 flex flex-col items-center gap-2 p-8' key={day.date}>
+              {/* Gün ismini ekle */}
+              <h3>{dayName}</h3>
+              {/* Geri kalan hava raporu bilgileri */}
+              <img className='m-auto' src={day.day.condition.icon} alt={day.day.condition.text} />
+              <p>{day.day.condition.text}</p>
+              <p>{day.day.maxtemp_c}°C</p>
+              <p>{day.day.mintemp_c}°C</p>
+            </div>
+          );
+        })}
+
       </div>
     </>
   )
